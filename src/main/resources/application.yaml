@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: peer-prog
+
+server:
+  port: 8081
