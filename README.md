@@ -45,3 +45,28 @@ curl --location 'http://localhost:8081/app/v1/add-name' \
 ~~~
 
 ![img.png](images/img.png)
+
+### Build and Deploy :
+- Build the project using Maven.
+
+~~~ bash
+mvn clean install
+~~~
+- Once Build Success.
+- Yuu could see the deployment jar available in the target folder `/app-base-path/target/peer-prog-0.0.1-dev.jar`.
+- Run the jar file, this is the deployment file and also called the `production ready` file.
+- This is a Spring Boot application, so you can run the jar file using the below command.
+
+~~~ bash
+java -jar peer-prog-0.0.1-dev.jar
+~~~
+- It runs with the default port provided by the application (inside the `application.yaml`).
+- incase you need to change the port, then **EITHER** you can change it inside the `application.yaml` file **OR** 
+   provide the port number as a command line argument while running the jar file.
+- For example, to run the application on port 8082, you can use the following command:
+
+~~~ bash
+java -jar peer-prog-0.0.1-dev.jar server.port=8082
+~~~
+- This is going to override the default port provided in the `application.yaml` file and run the application on port 8082.
+
