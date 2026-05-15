@@ -70,3 +70,66 @@ java -jar peer-prog-0.0.1-dev.jar server.port=8082
 ~~~
 - This is going to override the default port provided in the `application.yaml` file and run the application on port 8082.
 
+### Get metrics with prometheous.
+- All the Metrics available in the application can be accessed using `actuator` endpoints.
+- Actuator is a Spring Boot module that provides production-ready features to help you monitor and manage your application. 
+- It includes various endpoints that expose information about the application's health, metrics, and other useful data.
+
+~~~ xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+~~~
+- Once you added this dependency and enabled it through the `application.yml` file 
+
+~~~ yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+~~~
+- Now all the default actuator endpoints will be available on the base path `http://localhost:8081/actuator`.
+
+- For Prometheus metrics, we need to add the `micrometer` dependency.
+- Micrometer is a metrics collection library that provides a simple facade over the instrumentation clients for various monitoring systems, including Prometheus.
+- To add the Micrometer Prometheus registry to your Spring Boot application, you can include the following dependency in your `pom.xml` file:
+~~~ xml
+<dependency>
+	<groupId>io.micrometer</groupId>
+	<artifactId>micrometer-registry-prometheus</artifactId>
+</dependency>
+~~~
+
+- Once the application is running, you can access the metrics endpoint to see the application metrics in Prometheus format.
+- You can access the metrics endpoint at `http://localhost:8081/actuator/prometheus` to see the application metrics in Prometheus format.
+- The metrics endpoint will provide various metrics about the application, such as memory usage, CPU usage and other performance-related metrics that can be used for monitoring and troubleshooting the application.
+- You can also integrate this metrics endpoint with a monitoring tool like Prometheus to visualize and analyze the metrics over time.
+- To integrate with Prometheus, you can add the following configuration to your `application.yaml` file:
+~~~ yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+~~~
+- This configuration will enable the Prometheus endpoint and make it available at `http://localhost:8081/actuator/prometheus`.
+- You can then configure Prometheus to scrape this endpoint at regular intervals to collect the metrics data for monitoring and analysis.
+- For example, you can add the following configuration to your Prometheus configuration file (`prometheus.yml`): - **WILL TALK LATER** 
+
+~~~ yaml
+scrape_configs:
+  - job_name: 'spring-boot-app'
+    static_configs:
+      - targets: ['localhost:8081']
+~~~
+- This configuration tells Prometheus to scrape the metrics from the Spring Boot application running on `localhost:8081` at regular intervals, allowing you to monitor the application's performance and health over time.
+- You can then use Prometheus's query language (PromQL) to create custom queries and visualizations based on the collected metrics data, helping you gain insights into the application's behavior and performance.
+- Overall, integrating Prometheus with your Spring Boot application using Micrometer allows you to effectively monitor and analyze the application's performance and health, enabling you to proactively identify and address any issues that may arise.
+- In summary, to get metrics with Prometheus in a Spring Boot application, you need to add the `spring-boot-starter-actuator` and `micrometer-registry-prometheus` dependencies, enable the actuator endpoints, and configure Prometheus to scrape the metrics endpoint. This setup allows you to monitor and analyze your application's performance effectively.
+- You can also create custom metrics using Micrometer by defining your own `MeterRegistry` and registering custom metrics with it. This allows you to track specific application metrics that are relevant to your use case, providing deeper insights into the application's behavior and performance.
+
