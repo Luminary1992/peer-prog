@@ -70,9 +70,9 @@ java -jar peer-prog-0.0.1-dev.jar server.port=8082
 ~~~
 - This is going to override the default port provided in the `application.yaml` file and run the application on port 8082.
 
-### Get metrics with prometheous.
+### Get metrics with Prometheus.
 - All the Metrics available in the application can be accessed using `actuator` endpoints.
-- Actuator is a Spring Boot module that provides production-ready features to help you monitor and manage your application. 
+- Actuator is a Spring Boot module that provides `production-ready` features to help you monitor and manage your application. 
 - `Production-Ready` means, you can access these endpoints with any credential from any ENVIRONMENT (dev, test, production).
 - It includes various endpoints that expose information about the application's health, metrics, and other useful data.
 
