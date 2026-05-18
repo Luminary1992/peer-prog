@@ -128,6 +128,7 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:8081']
 ~~~
+
 - This configuration tells Prometheus to scrape the metrics from the Spring Boot application running on `localhost:8081` at regular intervals, allowing you to monitor the application's performance and health over time.
 - You can then use Prometheus's query language (PromQL) to create custom queries and visualizations based on the collected metrics data, helping you gain insights into the application's behavior and performance.
 - Overall, integrating Prometheus with your Spring Boot application using Micrometer allows you to effectively monitor and analyze the application's performance and health, enabling you to proactively identify and address any issues that may arise.
@@ -142,7 +143,8 @@ scrape_configs:
 
 ~~~ dockerfile
 # Use an official OpenJDK runtime as a parent image, check the Image version with the Java version you are using in your application and configure the same in the Dockerfile.
-FROM openjdk:17-jdk-slim
+# This has pulled the OpenJDK 25 image from the Docker Hub (https://hub.docker.com/_/openjdk/tags), which is a lightweight version of the JDK that is suitable for running Java applications in a containerized environment.
+FROM openjdk:25-jdk-slim
 # Set the working directory in the container (A folder inside the container where the application will be stored).
 WORKDIR /app
 # Copy the jar file from the target directory to the container
@@ -159,12 +161,40 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ~~~ bash
 docker build -t peer-prog:0.0.1-dev .
 ~~~
+
 - Once added the `docker build` command, it will look up the `Dockerfile` and read the instructions from the Dockerfile, build the image according to those instructions.
 - This command builds the Docker image and tags it as `peer-prog:0.0.1-dev`. The `.` at the end specifies the build context, which is the current directory where the Dockerfile is located.
+
+> NOTE : 
+> - Image Name : `peer-prog` and Tag : `0.0.1-dev`.
+> - The image name is used to identify the image(application-name preferable), and the tag is used to specify a specific version of the image. In this case, `0.0.1-dev` indicates that this is a development version of the `peer-prog` image.
+> - tag creates the major role in the real world deployment, because it helps to identify the version of the image and manage different versions of the application effectively. 
+> - It allows you to track changes, roll back to previous versions if needed, and ensure that you are using the correct version of the image in different environments (development, staging, production).
+> - We need new tag every time(++1) when we make changes to the application and build a new image, this way we can keep track of the different versions of the image and manage them effectively.
+
+- In every PULL REQUEST, just updates the tag `version` in pom.xml file, this way we can keep track of the different versions of the image and manage them effectively.
+
+pom.xml file:
+~~~ xml
+	<groupId>spring-boot</groupId>
+	<artifactId>peer-prog</artifactId>
+	<version>0.0.1-dev</version>
+    
+    Prefrable : 0.0.1-dev, 0.0.2-dev, 0.0.3-dev and so on for the development versions of the image.
+~~~
+
+build.gradle.kts file:
+~~~ kotlin
+group = "spring-boot"
+version = "0.0.1-dev"
+~~~
+
 - Once the image is built successfully, you can run a container from the image using the following command:
 
 ~~~ bash
+docker run -p <port-outside-container>:<port-inside-container> <image-name>:<tag>
 docker run -p 8082:8081 peer-prog:0.0.1-dev
+ docker run -p 8082:8081 -d  peer-prog:0.0.1-dev  -> `-d` flag is used to run the container in detached mode, which means that the container will run in the background.
 ~~~
 
 - Looks this port command carefully, the first port number (8082) is the port on the host machine that you want to map to the second port number (8081), which is the port that the application is running on inside the container.
@@ -174,16 +204,41 @@ docker run -p 8082:8081 peer-prog:0.0.1-dev
 - This command runs a container from the `peer-prog:0.0.1-dev` image and maps port 8082 of the container to port 8081 on the host machine, allowing you to access the application.
 - To push the Docker image to Docker Hub, you first need to tag the image with your Docker Hub username and the repository name. For example, if your Docker Hub username is `yourusername` and you want to push to a repository named `peer-prog`, you can tag the image as follows:
 
+~~~ docker commands
+docker images
+docker ps
+docker exec -it <container_id> sh
+docker exec -it e475153a6ae8 sh
+docker logs <container_id>
+docker logs e475153a6ae8
+docker stop <container_id>
+docker stop e475153a6ae8
+docker rm <container_id>
+docker rm e475153a6ae8
+docker rmi <image_id>
+docker rmi 8b1c9e5f8a2c
+docker rmi <image_name>:<tag>
+docker rmi peer-prog:0.0.1-dev
+docker rmi yourusername/peer-prog:0.0.1-dev
+~~~
+
 ~~~ bash
 docker login
+docker login -u yourusername
+docker login -u yourusername -p yourpassword
+docker logout
 docker tag peer-prog:0.0.1-dev yourusername/peer-prog:0.0.1-dev
 ~~~
+
 - The `docker login` command is used to authenticate with Docker Hub using your Docker Hub credentials. This step is necessary before you can push images to your Docker Hub repository.
 - The `docker tag` command is used to create a new tag for the existing image.
 - In this case, it tags the `0.0.1-dev` image with the new name `yourusername/peer-prog:0.0.1-dev`, which follows the convention of `username/repository:tag`.
 - After tagging the image, you can push it to Docker Hub using the following command:
+- Before pushing the image, make sure you have tagged it(line number 239-240) OR created a repository named `peer-prog` in your Docker Hub account to which you want to push the image.
 
 ~~~ bash
+docker tag local-image:tagname yourusername/new-repo:tagname
+docker tag peer-prog:0.0.1-dev rockysahoo/peer-prog:0.0.1-dev
 docker push yourusername/peer-prog:0.0.1-dev
 ~~~
 
